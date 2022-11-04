@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import time
+import sys
 
 from mpi4py import MPI
 
@@ -152,4 +153,4 @@ if __name__ == '__main__':
     end = time.time()
     
     with open(RESULTS_PATH, 'a') as file:
-        file.write(f'{N},{size},{N_ITER},{end - start}')
+        file.write(f'{N},{size},{N_ITER},{end - start}\n')
