@@ -151,6 +151,7 @@ if __name__ == '__main__':
             Q[x_start:x_end, y_start:y_end] = data
 
     end = time.time()
-    
-    with open(RESULTS_PATH, 'a') as file:
-        file.write(f'{N},{size},{N_ITER},{end - start}\n')
+
+    if rank == 0:
+        with open(RESULTS_PATH, 'a') as file:
+            file.write(f'{N},{size},{N_ITER},{end - start}\n')
