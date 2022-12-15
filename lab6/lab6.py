@@ -3,6 +3,7 @@ import sys
 import time
 import copy
 import math
+from typing import Union
 
 import numpy as np
 
@@ -14,10 +15,12 @@ G_MIN_COST = 5
 G_MAX_COST = 20
 
 # init
-if len(sys.argv) not in [3, 4]:
-    raise ValueError("Wrong number of arguments. Proper usage: python lab6.py N d")
-N = int(sys.argv[len(sys.argv) - 2])
-d = int(sys.argv[len(sys.argv) - 1])
+if len(sys.argv) not in [5, 6]:
+    raise ValueError("Wrong number of arguments. Proper usage: python lab6.py [n_proc] [N] [d] [output]")
+n_proc = int(sys.argv[len(sys.argv) - 4])
+N = int(sys.argv[len(sys.argv) - 3])
+d = int(sys.argv[len(sys.argv) - 2])
+output_file = sys.argv[len(sys.argv) - 1]
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -78,7 +81,7 @@ def choose_optimal_path(paths: list[Path]) -> Path:
             final_path = path
     return final_path
     
-def generate_shortest_path(G: np.ndarray, path: Path, d: int = N, N: int = N, return_all: bool = False) -> Path|list[Path]:
+def generate_shortest_path(G: np.ndarray, path: Path, d: int = N, N: int = N, return_all: bool = False) -> Union[Path, list[Path]]:
     paths = [path]
     current_min = float('inf')
     final_paths = []
@@ -130,5 +133,8 @@ if __name__ == '__main__':
         with MPIPoolExecutor() as executor:
             paths = list(executor.map(generate_shortest_path, [G] * len(init_paths), init_paths))
     end = time.time()
-    print(f'{N}, {d}, {end - start:0.8f}') # N, d, time
+    print(f'{n_proc}, {N}, {d}, {end - start:0.8f}') # n_proc, N, d, time
     print(choose_optimal_path(paths))
+    
+    with open(output_file, 'a') as file:
+        file.write(f'{n_proc},{N},{d},{end - start:0.8f}\n')
